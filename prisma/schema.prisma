@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  TEACHER
+  ADMIN
+}
+
+enum UserState {
+  NEW
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum ProjectState {
+  ACTIVE
+  DELETED
+}
+
+enum ExerciseState {
+  HIDDEN
+  ACTIVE
+  DELETED
+}
+
+enum ExerciseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  HARD
+  VERY_HARD
+  EXPERT
+}
+
+model User {
+  id            Int             @id @default(autoincrement())
+  uuid          String          @unique @default(uuid())
+  email         String          @unique
+  name          String
+  nickname      String
+  sub           String
+  picture       String?
+  lastLogin     DateTime        @default(now())
+  role          Role            @default(USER)
+  state         UserState       @default(NEW)
+  OwnedProjects ProjectOwners[]
+  projects      Project[]
+  codeResults   CodeResult[]
+}
+
+model ProjectOwners {
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId Int
+
+  @@id([userId, projectId])
+}
+
+model Project {
+  id          Int             @id @default(autoincrement())
+  uuid        String          @unique @default(uuid())
+  name        String          @unique
+  owners      ProjectOwners[]
+  users       User[]
+  description String?
+  state       ProjectState    @default(ACTIVE)
+  exercises   Exercise[]
+}
+
+model Exercise {
+  id         Int           @id @default(autoincrement())
+  uuid       String        @unique @default(uuid())
+  name       String        @unique
+  state      ExerciseState @default(HIDDEN)
+  level      ExerciseLevel @default(BEGINNER)
+  task       String
+  tries      Int           @default(1)
+  codeCases  CodeCase[]
+  deadline   DateTime
+  Project    Project?      @relation(fields: [projectId], references: [id])
+  projectId  Int?
+  CodeResult CodeResult[]
+}
+
+model CodeResult {
+  id                Int      @id @default(autoincrement())
+  user              User     @relation(fields: [userId], references: [id])
+  userId            Int
+  case              CodeCase @relation(fields: [caseId], references: [id])
+  caseId            Int
+  compilationOutput String
+  appOutput         String
+  appErrorOutput    String
+  exercise          Exercise @relation(fields: [exerciseId], references: [id])
+  exerciseId        Int
+}
+
+model CodeCase {
+  id         Int          @id @default(autoincrement())
+  uuid       String       @default(uuid())
+  input      String
+  Exercise   Exercise?    @relation(fields: [exerciseId], references: [id])
+  exerciseId Int?
+  CodeResult CodeResult[]
+}
