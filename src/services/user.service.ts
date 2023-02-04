@@ -34,3 +34,34 @@ export const createUserIfNotExist = async (oidc: RequestContext) => {
       })
     return;
 }
+
+export const findUser = async (oidc: RequestContext) => {
+    const {user} = oidc;
+    if (!user) {
+        throw new Error("Invalid login information");
+    }
+
+    const foundUser = await db.user.findUnique({
+        where:{
+            email: user.email
+        }
+    }) 
+
+    if (!foundUser) {
+        throw new Error("user does not exist"); 
+    }
+
+    const {email,name,nickname, picture, lastLogin, role} = foundUser;
+
+    const result: userData = {
+        email,
+        name,
+        nickname, 
+        picture: picture? picture: "", 
+        lastLogin, 
+        role
+    }
+
+    return result;
+
+}
