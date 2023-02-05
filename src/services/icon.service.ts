@@ -4,7 +4,7 @@ import * as fs from "fs"
 export const generateIdentiIcon = async (hash: string) => {
     try {
         await fs.promises.readFile(`${process.env.IDENTICON_FOLDER}/${hash}.svg`)
-        return "";
+        return `${process.env.IDENTICON_FOLDER}/${hash}.svg`;
     } catch (error) {
         const svg = jdenticon.toSvg(hash, 200)
         fs.writeFile(`${process.env.IDENTICON_FOLDER}/${hash}.svg`, svg, (err) => console.log(err))

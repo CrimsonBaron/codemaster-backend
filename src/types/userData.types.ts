@@ -1,4 +1,5 @@
 declare interface userData {
+    uuid: string
     email: string
     name: string
     nickname: string

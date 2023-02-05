@@ -8,7 +8,7 @@ export const createUserIfNotExist = async (oidc: RequestContext) => {
     const {user} = oidc;
     
     if (!user) {
-        return;
+        throw new Error("invalid oidc user");
     }
 
    await db.user.upsert({
@@ -23,7 +23,7 @@ export const createUserIfNotExist = async (oidc: RequestContext) => {
             name: user.name,
             nickname: user.nickname,
             sub: user.sub,
-            picture: await generateIdentiIcon(randomBytes(20).toString('hex')).then(),
+            picture: await generateIdentiIcon(user.nickname).then(),
         }
     }).then(async () => {
         await db.$disconnect()
@@ -45,15 +45,16 @@ export const findUser = async (oidc: RequestContext) => {
         where:{
             email: user.email
         }
-    }) 
+    })
 
     if (!foundUser) {
         throw new Error("user does not exist"); 
     }
 
-    const {email,name,nickname, picture, lastLogin, role} = foundUser;
+    const {email,name,nickname, picture, lastLogin, role, uuid} = foundUser;
 
     const result: userData = {
+        uuid,
         email,
         name,
         nickname, 

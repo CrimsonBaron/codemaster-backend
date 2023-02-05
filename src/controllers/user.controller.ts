@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { db } from "../utils/db.utils";
 import { findUser  } from "../services/user.service";
 
 export const getUser = async (req: Request, res: Response) =>{

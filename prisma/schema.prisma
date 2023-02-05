@@ -55,7 +55,7 @@ model User {
   role          Role            @default(USER)
   state         UserState       @default(NEW)
   OwnedProjects ProjectOwners[]
-  projects      Project[]
+  projects      UserProjects[]
   codeResults   CodeResult[]
 }
 
@@ -68,12 +68,21 @@ model ProjectOwners {
   @@id([userId, projectId])
 }
 
+model UserProjects {
+  project    Project @relation(fields: [project_id], references: [id])
+  project_id Int
+  user       User    @relation(fields: [user_id], references: [id])
+  user_id    Int
+
+  @@id([project_id, user_id])
+}
+
 model Project {
   id          Int             @id @default(autoincrement())
   uuid        String          @unique @default(uuid())
   name        String          @unique
   owners      ProjectOwners[]
-  users       User[]
+  users       UserProjects[]
   description String?
   state       ProjectState    @default(ACTIVE)
   exercises   Exercise[]

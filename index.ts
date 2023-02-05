@@ -2,10 +2,12 @@ import express, { Express, Request, Response } from 'express';
 import morgan from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
-import { auth } from 'express-openid-connect';
+import { auth, requiresAuth } from 'express-openid-connect';
+import path from 'path';
 
 import indexRouter from "./src/routes/index.route"
 import userRouter from './src/routes/user.route';
+import projectRouter from './src/routes/project.route';
 
 dotenv.config();
 
@@ -25,13 +27,14 @@ const app: Express = express();
 app.use(morgan("dev"))
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"))
-app.use("/identicons", express.static("identicons"))
+app.use("/identicons", express.static(path.resolve("./public/identicons")))
 app.use(auth(authConfig))
 
-
-app.use("/", indexRouter)
 app.use(`${process.env.API_ROUTE}${process.env.API_VERSION}/user`,userRouter)
+app.use(`${process.env.API_ROUTE}${process.env.API_VERSION}/project`, projectRouter)
+app.use("/", indexRouter)
+
+
 
 app.listen(PORT, () => {
   console.log(`\x1b[35m[server]\x1b[0m Server is running at \x1b[36m http://localhost:${PORT} \x1b[30m`);
