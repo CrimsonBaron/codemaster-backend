@@ -320,5 +320,55 @@ export const removeUsersFromProject =(projectUuid: string, userUuids: string[]) 
 }
 
 export const searchForProjectBasedOnKeyword =async (oidc: RequestContext, keyword: string) => {
+    try {
+        const {user} = oidc;
+        if(!user) {throw new Error("invalid oidc")};
+        if(keyword !== "") {throw new Error("invalid oidc")};
     
+        const foundUser = await db.user.findUnique({
+            where:{
+                email: user.email
+            }
+        })
+    
+        if(!foundUser) {throw new Error("invalid oidc")};
+    
+        const foundProjects =await db.project.findMany({
+            where:{
+                name:{
+                    search: keyword
+                }
+            }
+        });
+        const sortedProjects: ProjectData[] = [];
+        foundProjects.map(async (project) => {
+            const isInProject = await db.userProjects.findFirst({
+                where:{
+                    project: project,
+                    user: foundUser
+                }
+            });
+            if(isInProject && project.state !== "DELETED"){
+                    const { description, name, uuid } = project;
+                    const isOwner: boolean = await db.projectOwners.findFirst({
+                        where: {
+                            user: foundUser,
+                            project: project
+                        },
+                        include: { user: true, project: true }
+                    }) != null ? true : false;
+                    sortedProjects.push({
+                        uuid,
+                        name,
+                        description: description != null ? description : "",
+                        isOwner
+                    })
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw new Error("something went wrong");
+        
+    }
+
 }

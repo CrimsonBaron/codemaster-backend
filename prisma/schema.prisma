@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -86,6 +87,8 @@ model Project {
   description String?
   state       ProjectState    @default(ACTIVE)
   exercises   Exercise[]
+
+  @@fulltext([name])
 }
 
 model Exercise {
