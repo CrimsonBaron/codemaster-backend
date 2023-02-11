@@ -6,8 +6,8 @@ import {isTeacherOrAdmin } from "../middlewares/hasRole.middleware";
 const projectRouter = express.Router();
 
 
-projectRouter.get("/", getAllProjects);
-projectRouter.post("/create", isTeacherOrAdmin ,postProject);
+projectRouter.get("/all", getAllProjects);
+projectRouter.post("/create" ,postProject);
 projectRouter.delete("/delete/:projectUuid", isTeacherOrAdmin , removeProject);
 projectRouter.put("/update/:projectUuid", isTeacherOrAdmin , patchProject);
 projectRouter.patch("/owner/add/:projectUuid", isTeacherOrAdmin , putOwnerToProject);

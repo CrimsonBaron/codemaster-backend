@@ -8,6 +8,7 @@ import path from 'path';
 import indexRouter from "./src/routes/index.route"
 import userRouter from './src/routes/user.route';
 import projectRouter from './src/routes/project.route';
+import exerciseRouter from './src/routes/exercise.router';
 
 dotenv.config();
 
@@ -28,10 +29,15 @@ app.use(morgan("dev"))
 app.use(cors());
 app.use(express.json());
 app.use("/identicons", express.static(path.resolve("./public/identicons")))
+
+// PUBLIC API ENDPOINTS
+// PROTECTED API ENDPOINTS
 app.use(auth(authConfig))
 
 app.use(`${process.env.API_ROUTE}${process.env.API_VERSION}/user`,userRouter)
 app.use(`${process.env.API_ROUTE}${process.env.API_VERSION}/project`, projectRouter)
+app.use(`${process.env.API_ROUTE}${process.env.API_VERSION}/exercise`, exerciseRouter)
+
 app.use("/", indexRouter)
 
 
