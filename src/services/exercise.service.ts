@@ -39,3 +39,22 @@ export const getAllExercisesForProject =async (oidc:RequestContext, projectUuid:
   
     return visibleExercises;
 }
+
+export const createExerciseForProject =async (oidc:RequestContext, projectUuid:string, exerciseInput: ExerciseInput) => {
+    const {user} = oidc!;
+    const {name, task, level,tries,deadline} = exerciseInput
+    await db.exercise.upsert({
+        where: {
+            name: exerciseInput.name,
+        },
+        update:{},
+        create:{
+            name,
+            task,
+            level,
+            
+        }
+
+    })
+
+}

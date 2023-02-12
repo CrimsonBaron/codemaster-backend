@@ -97,7 +97,7 @@ model Exercise {
   name       String        @unique
   state      ExerciseState @default(HIDDEN)
   level      ExerciseLevel @default(BEGINNER)
-  task       String
+  task       String @db.LongText
   tries      Int           @default(1)
   codeCases  CodeCase[]
   deadline   DateTime
