@@ -67,7 +67,7 @@ export const updateProject = async (uuid: string, params: ProjectInput) => {
     const { name, description } = params;
 
   const existingProject = await db.project.findUnique({ where: { name } });
-  if (existingProject) {
+  if (existingProject && existingProject.uuid != uuid) {
     throw new Error("A project with that name already exists.");
   }
 

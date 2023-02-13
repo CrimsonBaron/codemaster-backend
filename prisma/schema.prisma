@@ -104,6 +104,8 @@ model Exercise {
   Project    Project?      @relation(fields: [projectId], references: [id])
   projectId  Int?
   CodeResult CodeResult[]
+
+   @@fulltext([name])
 }
 
 model CodeResult {
