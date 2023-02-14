@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
@@ -78,16 +78,43 @@ model UserProjects {
   @@id([project_id, user_id])
 }
 
+model ProjectAccesCode {
+  project    Project   @relation(fields: [project_id], references: [id])
+  project_id Int
+  code       AccesCode @relation(fields: [code_id], references: [id])
+  code_id    Int
+
+  @@id([project_id, code_id])
+}
+
+model ProjectOwnerAccesCode {
+  project    Project   @relation(fields: [project_id], references: [id])
+  project_id Int
+  code       AccesCode @relation(fields: [code_id], references: [id])
+  code_id    Int
+
+  @@id([project_id, code_id])
+}
+
+model AccesCode {
+  id        Int                @id @default(autoincrement())
+  code      String             @unique @default("")
+  generated DateTime           @default(now())
+  projects  ProjectAccesCode[]
+  projectsOwners ProjectOwnerAccesCode[]
+}
+
 model Project {
-  id          Int             @id @default(autoincrement())
-  uuid        String          @unique @default(uuid())
-  name        String          @unique
+  id          Int                @id @default(autoincrement())
+  uuid        String             @unique @default(uuid())
+  name        String             @unique
   owners      ProjectOwners[]
   users       UserProjects[]
   description String?
-  state       ProjectState    @default(ACTIVE)
+  state       ProjectState       @default(ACTIVE)
   exercises   Exercise[]
-
+  accesCodes  ProjectAccesCode[]
+  owenrAccesCodes ProjectOwnerAccesCode[]
   @@fulltext([name])
 }
 
@@ -97,7 +124,7 @@ model Exercise {
   name       String        @unique
   state      ExerciseState @default(HIDDEN)
   level      ExerciseLevel @default(BEGINNER)
-  task       String @db.LongText
+  task       String        @db.LongText
   tries      Int           @default(1)
   codeCases  CodeCase[]
   deadline   DateTime
@@ -105,7 +132,7 @@ model Exercise {
   projectId  Int?
   CodeResult CodeResult[]
 
-   @@fulltext([name])
+  @@fulltext([name])
 }
 
 model CodeResult {
