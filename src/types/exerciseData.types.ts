@@ -9,7 +9,7 @@ declare interface ExerciseData {
     deadline: Date
 }
 
-declare interface ExerciseInput {
+export declare interface ExerciseInput {
     name: string
     task: string,
     level: ExerciseLevel,
