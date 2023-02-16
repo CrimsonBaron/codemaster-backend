@@ -1,6 +1,6 @@
 import { ExerciseLevel } from "@prisma/client"
 
-declare interface ExerciseData {
+export declare interface ExerciseData {
     uuid: string
     name: string
     task: string,
