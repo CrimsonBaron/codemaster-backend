@@ -42,45 +42,21 @@ export const getAllExercisesForProject = async (oidc: RequestContext, projectUui
   return visibleExercises;
 }
 
-export const createExerciseForProject = async (oidc: RequestContext, projectUuid: string, exerciseInput: ExerciseInput) => {
-  try {
-    const { user } = oidc!;
-    const { name, task, level, tries, deadline } = exerciseInput;
+export const createExerciseForProject =async (projectUuid:string, exerciseInput: ExerciseInput) => {
+    const {name, task, level,tries,deadline} = exerciseInput
+    const project = await db.project.findUnique({where:{uuid:projectUuid}})
     await db.exercise.upsert({
-      where: {
-        name: exerciseInput.name,
-      },
+      where: {name: exerciseInput.name,},
       update: {},
-      create: {
-        name,
-        task,
-        level,
-        tries: tries==0? 1: tries,
-        deadline
-      }
-
+      create: {name,task,level,tries: tries==0? 1: tries,deadline,projectId: project!.id}
     })
-  } catch (error) {
-    throw new Error("something went wrong")
-  }
-
 }
 
 export const deleteExistingExercise =async (exerciseUuid:string) => {
-  try {
     await db.exercise.update({
-      where:{
-        uuid:exerciseUuid
-      },
-      data:{
-        state: "DELETED"
-      }
+      where:{uuid:exerciseUuid},
+      data:{state: "DELETED"}
     })
-  } catch (error) {
-    throw new Error("something went wrong");
-    
-  }
-  
 }
 
 export const updateExistingExercise =async (exerciseUuid:string, exerciseInput: ExerciseInput) => {
@@ -90,45 +66,32 @@ export const updateExistingExercise =async (exerciseUuid:string, exerciseInput: 
       throw new Error("A exercse with that name already exists.");
     }
     await db.exercise.update({
-      where:{
-        uuid: exerciseUuid,
-      },
-      data:{
-        name,task,level,tries,deadline
-      }
+      where:{ uuid: exerciseUuid,},
+      data:{name,task,level,tries: tries==0? 1: tries,deadline }
     })
 }
 
-export const searchForExistingExercsie = async (keyword:string, projectUuid:string) =>{
-    try {
-      if (keyword === "") { throw new Error("invalid oidc or keyword") };
+export const searchForExistingExercsie = async (keyword: string, projectUuid: string) => {
+  if (!keyword) throw new Error("invalid keyword");
   
-      const foundExercises = await db.exercise.findMany({
-        where:{
-          Project:{uuid:projectUuid},
-          name:{
-            search:keyword
-          }
-        },
-      })
-  
-      return foundExercises!.map((exercise)=>{
-          if (exercise.state !== "HIDDEN" && exercise.state !== "DELETED") {
-              return {
-                uuid: exercise.uuid,
-                name: exercise.name,
-                task: exercise.task,
-                level: exercise.level,
-                tries: exercise.tries,
-                deadline: exercise.deadline
-              }
-          }
-      })
-    } catch (error) {
-      throw new Error("something went wrong");
-      
+  const foundExercises = await db.exercise.findMany({
+    where: {
+      Project: { uuid: projectUuid },
+      name: { search: keyword }
     }
-}
+  });
+
+  return foundExercises
+    .filter((exercise) => exercise.state !== "HIDDEN" && exercise.state !== "DELETED")
+    .map((exercise) => ({
+      uuid: exercise.uuid,
+      name: exercise.name,
+      task: exercise.task,
+      level: exercise.level,
+      tries: exercise.tries,
+      deadline: exercise.deadline
+    }));
+};
 
 export const submitExercise = (oidc:RequestContext, exerciseUuid:string, code:string) =>{
 
